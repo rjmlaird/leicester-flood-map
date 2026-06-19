@@ -8,7 +8,7 @@ from pathlib import Path
 import json
 
 # Configuration
-HISTORIC_DIR = Path(__file__).parent / "data" / "NDL-historic"
+HISTORIC_DIR = Path(__file__).parent / "/Volumes/DevProjects/data/leicester-flood-map" / "NDL-historic"
 DOCS_DIR = Path(__file__).parent / "docs"
 
 # Find the GeoJSON file
