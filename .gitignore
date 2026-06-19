@@ -1,0 +1,6 @@
+
+# Large data files (>100MB GitHub limit)
+Flood_Map_for_Planning_Flood_Zones.gdb.zip
+docs/historic-flood-data.geojson
+docs/leicester-flood-data.geojson
+docs/ea-flood-zones.geojson
