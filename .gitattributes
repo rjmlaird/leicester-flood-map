@@ -1,4 +1,6 @@
 data filter=lfs diff=lfs merge=lfs -text
+Flood_Map_for_Planning_Flood_Zones.gdb.zip filter=lfs diff=lfs merge=lfs -text
+docs/historic-flood-data.geojson filter=lfs diff=lfs merge=lfs -text
 docs/ea-flood-zones.geojson !text !filter !merge !diff
 docs/ea-flood-zones-cc.geojson !text !filter !merge !diff
 docs/historic-flood-data.geojson !text !filter !merge !diff
