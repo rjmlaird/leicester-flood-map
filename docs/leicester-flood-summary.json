@@ -1,0 +1,13 @@
+{
+  "total_features": 990,
+  "geometry_type": [
+    "Point"
+  ],
+  "coordinate_system": "EPSG:4326",
+  "bounding_box": {
+    "min_x": -1.2059729073625218,
+    "min_y": 52.58272416464982,
+    "max_x": -1.0461926396364405,
+    "max_y": 52.68728982632951
+  }
+}

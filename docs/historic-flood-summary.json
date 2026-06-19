@@ -1,0 +1,17 @@
+{
+  "total_events": 21564,
+  "geometry_type": [
+    "MultiPolygon"
+  ],
+  "coordinate_system": "EPSG:4326",
+  "bounding_box": {
+    "min_x": -6.318640643941382,
+    "min_y": 49.91108510329921,
+    "max_x": 1.7610453331696858,
+    "max_y": 55.774847175686574
+  },
+  "columns": [
+    "layer",
+    "geometry"
+  ]
+}

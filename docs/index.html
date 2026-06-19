@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leicester Flood Risk Dashboard</title>
+    
+    <!-- Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 8px;
+        }
+        
+        .layer-toggle {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .layer-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .layer-toggle.active {
+            opacity: 1;
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .popup-content {
+            font-size: 14px;
+            max-width: 300px;
+        }
+        
+        .popup-content strong {
+            color: #0066cc;
+            font-size: 16px;
+        }
+        
+        .popup-section {
+            margin: 8px 0;
+            padding: 8px;
+            background: #f0f9ff;
+            border-radius: 4px;
+        }
+        
+        .popup-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .popup-value {
+            color: #666;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-6">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold">🌊 Leicester Flood Risk Dashboard</h1>
+            <p class="mt-2 text-blue-100">Interactive map showing flood risk structures, historic events, and EA flood zones</p>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto p-6">
+        
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="stat-card">
+                <div class="stat-value">990</div>
+                <div class="stat-label">Flood Defense Structures</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value">45%</div>
+                <div class="stat-label">Properties at Flood Risk</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value text-red-600">127</div>
+                <div class="stat-label">Historic Flood Events</div>
+                <div class="text-xs text-gray-500 mt-1">1946-2025</div>
+            </div>
+        </div>
+        
+        <!-- Layer Toggles -->
+        <div class="bg-white p-4 rounded-lg mb-6 shadow">
+            <h2 class="text-lg font-bold mb-3">🗺️ Toggle Data Layers</h2>
+            <div class="flex flex-wrap">
+                <button id="toggle-leicester" onclick="toggleLayer('leicester')" class="layer-toggle active bg-blue-600 text-white">
+                    Leicester Flood Structures
+                </button>
+                <button id="toggle-historic" onclick="toggleLayer('historic')" class="layer-toggle bg-red-600 text-white">
+                    Historic Flood Events
+                </button>
+                <button id="toggle-ea-flood" onclick="toggleLayer('ea-flood')" class="layer-toggle bg-indigo-600 text-white">
+                    EA Flood Zones (CCP1)
+                </button>
+            </div>
+        </div>
+        
+        <!-- Map -->
+        <div id="map"></div>
+        
+        <!-- Information Section -->
+        <div class="bg-white p-6 rounded-lg mt-6 shadow">
+            <h2 class="text-xl font-bold mb-4">📊 About This Dashboard</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="font-semibold mb-2">🏗️ Leicester Flood Structures</h3>
+                    <p class="text-gray-700">
+                        990 flood defence structures and features from Leicester City Council.
+                        Shows walls, culverts, and other flood protection infrastructure.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-2">📅 Historic Flood Events</h3>
+                    <p class="text-gray-700">
+                        127 documented flood events from 1946-2025. Red circles show locations.
+                        Click to see event date, location, and impact details.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-2">🌊 EA Flood Zones (CCP1)</h3>
+                    <p class="text-gray-700">
+                        Environment Agency Flood Zones including climate change projections.
+                        <br><strong>Zone 2:</strong> Medium risk (blue)
+                        <br><strong>Zone 3:</strong> High risk (dark blue)
+                        <br><strong>Zone 3a:</strong> +Climate change (red)
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-6 border-t pt-6">
+                <h3 class="font-semibold mb-2">Data Sources</h3>
+                <ul class="text-gray-700 space-y-1">
+                    <li>• <strong>Leicester City:</strong> Flood Risk Register (990 structures)</li>
+                    <li>• <strong>Environment Agency:</strong> Historic Flood Map (127 events)</li>
+                    <li>• <strong>Environment Agency:</strong> Flood Zones for Planning + CCP1</li>
+                </ul>
+            </div>
+            
+            <div class="mt-6 border-t pt-6">
+                <h3 class="font-semibold mb-2">How to Use</h3>
+                <ul class="text-gray-700 space-y-1">
+                    <li>1. Click layer buttons to toggle data visibility</li>
+                    <li>2. Click on map features to view detailed information</li>
+                    <li>3. Use zoom controls to focus on specific areas</li>
+                    <li>4. Scroll to pan across the map</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-gray-600">
+            <p>© 2026 Built with ❤️ for flood risk awareness in Leicester</p>
+            <p class="mt-2">
+                <a href="#" class="text-blue-600 hover:text-blue-800">Documentation</a> | 
+                <a href="#" class="text-blue-600 hover:text-blue-800">GitHub</a> | 
+                <a href="#" class="text-blue-600 hover:text-blue-800">Contact</a>
+            </p>
+        </footer>
+    </main>
+    
+    <!-- Leaflet.js -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Main Script -->
+    <script>
+        // ============================================================================
+        // INITIALIZE MAP
+        // ============================================================================
+        
+        const map = L.map('map').setView([52.6309, -1.1398], 12);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // ============================================================================
+        // LEICESTER FLOOD STRUCTURES
+        // ============================================================================
+        
+        let leicesterLayer;
+        
+        fetch('leicester-flood-data.geojson')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                leicesterLayer = L.geoJSON(data, {
+                    style: {
+                        color: 'darkblue',
+                        fillColor: '#0066cc',
+                        fillOpacity: 0.6,
+                        weight: 2
+                    },
+                    onEachFeature: function(feature, layer) {
+                        const props = feature.properties;
+                        
+                        let popupContent = '<div class="popup-content">';
+                        popupContent += '<strong>🏗️ Leicester Flood Structure</strong><br><hr>';
+                        
+                        // Add key properties
+                        if (props.name) popupContent += `<div class="popup-section"><span class="popup-label">Name:</span><br><span class="popup-value">${props.name}</span></div>`;
+                        if (props.type) popupContent += `<div class="popup-section"><span class="popup-label">Type:</span><br><span class="popup-value">${props.type}</span></div>`;
+                        if (props.risk_level) popupContent += `<div class="popup-section"><span class="popup-label">Risk Level:</span><br><span class="popup-value">${props.risk_level}</span></div>`;
+                        if (props.status) popupContent += `<div class="popup-section"><span class="popup-label">Status:</span><br><span class="popup-value">${props.status}</span></div>`;
+                        
+                        popupContent += '</div>';
+                        layer.bindPopup(popupContent);
+                    }
+                });
+                
+                leicesterLayer.addTo(map);
+                map.fitBounds(leicesterLayer.getBounds());
+                
+                console.log('✅ Leicester flood structures loaded:', leicesterLayer.getLayers().length);
+            })
+            .catch(error => {
+                console.error('❌ Error loading Leicester data:', error);
+            });
+        
+        // ============================================================================
+        // HISTORIC FLOOD EVENTS
+        // ============================================================================
+        
+        let historicLayer;
+        
+        fetch('historic-flood-data.geojson')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            historicLayer = L.geoJSON(data, {
+              pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                  radius: 8,
+                  fillColor: '#ff0000',
+                  color: '#darkred',
+                  weight: 2,
+                  opacity: 1,
+                  fillOpacity: 0.8
+                });
+              },
+              onEachFeature: function(feature, layer) {
+                const props = feature.properties;
+                
+                let popupContent = '<div class="popup-content">';
+                popupContent += '<strong>📅 Historic Flood Event</strong><br><hr>';
+                
+                // Add key properties with sections
+                if (props.Date) popupContent += `<div class="popup-section"><span class="popup-label">Date:</span><br><span class="popup-value">${props.Date}</span></div>`;
+                if (props.Location) popupContent += `<div class="popup-section"><span class="popup-label">Location:</span><br><span class="popup-value">${props.Location}</span></div>`;
+                if (props.Impact) popupContent += `<div class="popup-section"><span class="popup-label">Impact:</span><br><span class="popup-value">${props.Impact}</span></div>`;
+                if (props.Source) popupContent += `<div class="popup-section"><span class="popup-label">Source:</span><br><span class="popup-value">${props.Source}</span></div>`;
+                
+                popupContent += '</div>';
+                layer.bindPopup(popupContent);
+              }
+            });
+            
+            console.log('✅ Historic flood events loaded:', historicLayer.getLayers().length);
+          })
+          .catch(error => {
+            console.log('⚠️ Historic flood data not available:', error);
+          });
+
+        // ============================================================================
+        // EA FLOOD ZONES (WITHOUT CLIMATE CHANGE)
+        // ============================================================================
+        
+
+        // ============================================================================
+        // EA FLOOD ZONES (WITH CLIMATE CHANGE)
+        // ============================================================================
+        
+        let eaFloodLayer;
+        
+        fetch('ea-flood-zones-cc.geojson')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            eaFloodLayer = L.geoJSON(data, {
+              style: function(feature) {
+                const props = feature.properties;
+                const zone = props.flood_zone || props.Flood_Zone || props.zone || props.Zone || 'Unknown';
+                
+                let color, fillColor, opacity, zoneName, zoneDesc;
+                
+                if (zone === '2' || zone === 'Zone 2') {
+                  color = '#0066cc';
+                  fillColor = '#66b3ff';
+                  opacity = 0.5;
+                  zoneName = 'Zone 2';
+                  zoneDesc = 'Medium Risk (1 in 1000 - 1 in 100)';
+                } else if (zone === '3' || zone === 'Zone 3') {
+                  color = '#003366';
+                  fillColor = '#0066cc';
+                  opacity = 0.6;
+                  zoneName = 'Zone 3';
+                  zoneDesc = 'High Risk (1 in 100+)';
+                } else if (zone === '3a' || zone === 'Zone 3a') {
+                  color = '#cc0000';
+                  fillColor = '#ff6666';
+                  opacity = 0.6;
+                  zoneName = 'Zone 3a';
+                  zoneDesc = 'High Risk + Climate Change';
+                } else if (zone === '3b' || zone === 'Zone 3b') {
+                  color = '#ff9900';
+                  fillColor = '#ffcc66';
+                  opacity = 0.5;
+                  zoneName = 'Zone 3b';
+                  zoneDesc = 'Functionally Essential Land';
+                } else {
+                  color = '#999999';
+                  fillColor = '#cccccc';
+                  opacity = 0.4;
+                  zoneName = 'Unknown';
+                  zoneDesc = 'Risk level not specified';
+                }
+                
+                return {
+                  color: color,
+                  fillColor: fillColor,
+                  fillOpacity: opacity,
+                  weight: 2
+                };
+              },
+              onEachFeature: function(feature, layer) {
+                const props = feature.properties;
+                
+                let popupContent = '<div class="popup-content">';
+                popupContent += '<strong>🌊 EA Flood Zone</strong><br><hr>';
+                
+                // Get zone value
+                const zone = props.flood_zone || props.Flood_Zone || props.zone || props.Zone || 'Unknown';
+                let zoneName = zone;
+                let zoneDesc = '';
+                
+                if (zone === '2' || zone === 'Zone 2') {
+                  zoneName = 'Zone 2';
+                  zoneDesc = 'Medium Risk (1 in 1000 - 1 in 100)';
+                } else if (zone === '3' || zone === 'Zone 3') {
+                  zoneName = 'Zone 3';
+                  zoneDesc = 'High Risk (1 in 100+)';
+                } else if (zone === '3a' || zone === 'Zone 3a') {
+                  zoneName = 'Zone 3a';
+                  zoneDesc = 'High Risk + Climate Change';
+                } else if (zone === '3b' || zone === 'Zone 3b') {
+                  zoneName = 'Zone 3b';
+                  zoneDesc = 'Functionally Essential Land';
+                }
+                
+                // Add key properties with styled sections
+                popupContent += `<div class="popup-section"><span class="popup-label">Flood Zone:</span><br><span class="popup-value" style="font-weight:bold;color:#0066cc;">${zoneName}</span></div>`;
+                popupContent += `<div class="popup-section"><span class="popup-label">Risk Level:</span><br><span class="popup-value">${zoneDesc}</span></div>`;
+                
+                if (props.source || props.Source) popupContent += `<div class="popup-section"><span class="popup-label">Source:</span><br><span class="popup-value">${props.source || props.Source}</span></div>`;
+                if (props.date || props.Date) popupContent += `<div class="popup-section"><span class="popup-label">Date:</span><br><span class="popup-value">${props.date || props.Date}</span></div>`;
+                if (props.method || props.Method) popupContent += `<div class="popup-section"><span class="popup-label">Method:</span><br><span class="popup-value">${props.method || props.Method}</span></div>`;
+                
+                // Add all other properties
+                for (let key in props) {
+                  if (key !== 'geometry' && 
+                      key !== 'flood_zone' && 
+                      key !== 'Flood_Zone' &&
+                      key !== 'zone' &&
+                      key !== 'Zone' &&
+                      key !== 'source' &&
+                      key !== 'Source' &&
+                      key !== 'date' &&
+                      key !== 'Date' &&
+                      key !== 'method' &&
+                      key !== 'Method' &&
+                      props[key] !== null &&
+                      props[key] !== '') {
+                    popupContent += `<div class="popup-section"><span class="popup-label">${key}:</span><br><span class="popup-value">${props[key]}</span></span></div>`;
+                  }
+                }
+                
+                popupContent += '</div>';
+                layer.bindPopup(popupContent);
+              }
+            });
+            
+            eaFloodLayer.addTo(map);
+            console.log('✅ EA Flood Zones loaded:', eaFloodLayer.getLayers().length);
+          })
+          .catch(error => {
+            console.error('❌ Error loading EA flood zones:', error);
+          });
+
+        // ============================================================================
+        // LAYER TOGGLE FUNCTION
+        // ============================================================================
+        
+        function toggleLayer(layerName) {
+          const button = document.getElementById(`toggle-${layerName}`);
+          
+          if (layerName === 'leicester' && leicesterLayer) {
+            if (map.hasLayer(leicesterLayer)) {
+              map.removeLayer(leicesterLayer);
+              button.classList.remove('active');
+              button.classList.add('bg-gray-400');
+              console.log('❌ Leicester structures hidden');
+            } else {
+              leicesterLayer.addTo(map);
+              button.classList.add('active');
+              button.classList.remove('bg-gray-400');
+              console.log('✅ Leicester structures shown');
+            }
+          }
+          
+          if (layerName === 'historic' && historicLayer) {
+            if (map.hasLayer(historicLayer)) {
+              map.removeLayer(historicLayer);
+              button.classList.remove('active');
+              button.classList.add('bg-gray-400');
+              console.log('❌ Historic events hidden');
+            } else {
+              historicLayer.addTo(map);
+              button.classList.add('active');
+              button.classList.remove('bg-gray-400');
+              console.log('✅ Historic events shown');
+            }
+          }
+          
+          if (layerName === 'ea-flood' && eaFloodLayer) {
+            if (map.hasLayer(eaFloodLayer)) {
+              map.removeLayer(eaFloodLayer);
+              button.classList.remove('active');
+              button.classList.add('bg-gray-400');
+              console.log('❌ EA Flood Zones hidden');
+            } else {
+              eaFloodLayer.addTo(map);
+              button.classList.add('active');
+              button.classList.remove('bg-gray-400');
+              console.log('✅ EA Flood Zones shown');
+            }
+          }
+        }
+        
+        // ============================================================================
+        // MAP EVENTS
+        // ============================================================================
+        
+        map.on('click', function(e) {
+            console.log(`Clicked: ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`);
+        });
+        
+    </script>
+    
+</body>
+</html>
