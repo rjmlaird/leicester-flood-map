@@ -7,6 +7,8 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.min.js"></script>
 
     <style>
         #map {
@@ -217,10 +219,34 @@
             layer.bindPopup(c);
         };
 
+        const isWgs84 = (gdf) => true;
+
         let leicesterLayer = null;
         let historicLayer = null;
         let eaLayer = null;
         let eaLayerCC = null;
+
+        function toggleLayer(layerName) {
+            const button = document.getElementById(`toggle-${layerName}`);
+            const layer = {
+                'leicester': leicesterLayer,
+                'historic': historicLayer,
+                'ea-flood': eaLayer,
+                'ea-flood-cc': eaLayerCC
+            }[layerName];
+
+            if (!layer) return;
+
+            if (map.hasLayer(layer)) {
+                map.removeLayer(layer);
+                button.classList.remove('active');
+                button.classList.add('bg-gray-400');
+            } else {
+                layer.addTo(map);
+                button.classList.add('active');
+                button.classList.remove('bg-gray-400');
+            }
+        }
 
         fetch('leicester-flood-data.geojson')
             .then(response => {
@@ -250,42 +276,79 @@
                         addPopup(feature, layer, 'Leicester Flood Structure');
                     }
                 }).addTo(map);
-
-                console.log('✅ Leicester flood structures loaded:', leicesterLayer.getLayers().length);
             })
             .catch(error => {
                 console.error('❌ Error loading Leicester data:', error);
             });
 
-        fetch('historic-flood-data.geojson')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                historicLayer = L.geoJSON(data, {
-                    style: function() {
-                        return {
-                            color: '#8b0000',
-                            fillColor: '#ff0000',
-                            fillOpacity: 0.30,
-                            weight: 2
-                        };
-                    },
-                    onEachFeature: function(feature, layer) {
-                        addPopup(feature, layer, 'Historic Flood Outline');
-                    }
-                }).addTo(map);
+        function addHistoricGeoJson(data) {
+            historicLayer = L.geoJSON(data, {
+                style: function(feature) {
+                    return {
+                        color: '#dc2626',
+                        fillColor: '#dc2626',
+                        fillOpacity: 0.25,
+                        weight: 2
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    addPopup(feature, layer, 'Historic Flood Outline');
+                }
+            }).addTo(map);
 
-                try {
-                    map.fitBounds(historicLayer.getBounds(), { padding: [20, 20] });
-                } catch (e) {}
+            try {
+                map.fitBounds(historicLayer.getBounds(), { padding: [20, 20] });
+            } catch (e) {}
+        }
 
-                console.log('✅ Historic flood outlines loaded:', historicLayer.getLayers().length);
-            })
-            .catch(error => {
-                console.error('❌ Error loading historic data:', error);
-            });
+        function loadHistoricWithFallback() {
+            fetch('historic-flood-data.geojson')
+                .then(response => {
+                    if (!response.ok) throw new Error('WGS84 historic file not found');
+                    return response.json();
+                })
+                .then(data => {
+                    addHistoricGeoJson(data);
+                })
+                .catch(() => {
+                    fetch('historic-flood-data-original.geojson')
+                        .then(response => {
+                            if (!response.ok) throw new Error('Original historic file not found');
+                            return response.json();
+                        })
+                        .then(data => {
+                            const converted = {
+                                type: 'FeatureCollection',
+                                features: (data.features || []).map(f => {
+                                    const geom = f.geometry;
+                                    if (!geom) return f;
+
+                                    const projectCoords = (coords) => {
+                                        if (typeof coords[0] === 'number') {
+                                            const p = proj4('EPSG:27700', 'EPSG:4326', coords);
+                                            return [p[0], p[1]];
+                                        }
+                                        return coords.map(projectCoords);
+                                    };
+
+                                    return {
+                                        ...f,
+                                        geometry: {
+                                            ...geom,
+                                            coordinates: projectCoords(geom.coordinates)
+                                        }
+                                    };
+                                })
+                            };
+                            addHistoricGeoJson(converted);
+                        })
+                        .catch(error => {
+                            console.error('❌ Error loading historic data:', error);
+                        });
+                });
+        }
+
+        loadHistoricWithFallback();
 
         fetch('ea-flood-zones.geojson')
             .then(response => {
@@ -298,8 +361,8 @@
                         const p = feature.properties || {};
                         const z = String(p.flood_zone || p.Flood_Zone || p.zone || p.Zone || '');
 
-                        if (z === '2') return { color: '#0066cc', fillColor: '#66b3ff', fillOpacity: 0.45, weight: 2 };
-                        if (z === '3') return { color: '#003366', fillColor: '#0066cc', fillOpacity: 0.55, weight: 2 };
+                        if (z === '2') return { color: '#1d4ed8', fillColor: '#60a5fa', fillOpacity: 0.45, weight: 2 };
+                        if (z === '3') return { color: '#1e3a8a', fillColor: '#2563eb', fillOpacity: 0.55, weight: 2 };
                         return { color: '#999999', fillColor: '#cccccc', fillOpacity: 0.35, weight: 1 };
                     },
                     onEachFeature: function(feature, layer) {
@@ -307,13 +370,11 @@
                         const z = String(p.flood_zone || p.Flood_Zone || p.zone || p.Zone || 'Unknown');
                         let popupContent = '<div class="popup-content">';
                         popupContent += '<strong>🌊 EA Flood Zone</strong><br><hr>';
-                        popupContent += `<div class="popup-section"><span class="popup-label">Flood Zone:</span><br><span class="popup-value" style="font-weight:bold;color:#0066cc;">${z}</span></div>`;
+                        popupContent += `<div class="popup-section"><span class="popup-label">Flood Zone:</span><br><span class="popup-value" style="font-weight:bold;color:#1d4ed8;">${z}</span></div>`;
                         popupContent += '</div>';
                         layer.bindPopup(popupContent);
                     }
                 }).addTo(map);
-
-                console.log('✅ EA Flood Zones loaded:', eaLayer.getLayers().length);
             })
             .catch(error => {
                 console.error('❌ Error loading EA flood zones:', error);
@@ -345,64 +406,10 @@
                         layer.bindPopup(popupContent);
                     }
                 }).addTo(map);
-
-                console.log('✅ EA Flood Zones CC loaded:', eaLayerCC.getLayers().length);
             })
             .catch(error => {
                 console.error('❌ Error loading EA flood zones CC:', error);
             });
-
-        function toggleLayer(layerName) {
-            const button = document.getElementById(`toggle-${layerName}`);
-
-            if (layerName === 'leicester' && leicesterLayer) {
-                if (map.hasLayer(leicesterLayer)) {
-                    map.removeLayer(leicesterLayer);
-                    button.classList.remove('active');
-                    button.classList.add('bg-gray-400');
-                } else {
-                    leicesterLayer.addTo(map);
-                    button.classList.add('active');
-                    button.classList.remove('bg-gray-400');
-                }
-            }
-
-            if (layerName === 'historic' && historicLayer) {
-                if (map.hasLayer(historicLayer)) {
-                    map.removeLayer(historicLayer);
-                    button.classList.remove('active');
-                    button.classList.add('bg-gray-400');
-                } else {
-                    historicLayer.addTo(map);
-                    button.classList.add('active');
-                    button.classList.remove('bg-gray-400');
-                }
-            }
-
-            if (layerName === 'ea-flood' && eaLayer) {
-                if (map.hasLayer(eaLayer)) {
-                    map.removeLayer(eaLayer);
-                    button.classList.remove('active');
-                    button.classList.add('bg-gray-400');
-                } else {
-                    eaLayer.addTo(map);
-                    button.classList.add('active');
-                    button.classList.remove('bg-gray-400');
-                }
-            }
-
-            if (layerName === 'ea-flood-cc' && eaLayerCC) {
-                if (map.hasLayer(eaLayerCC)) {
-                    map.removeLayer(eaLayerCC);
-                    button.classList.remove('active');
-                    button.classList.add('bg-gray-400');
-                } else {
-                    eaLayerCC.addTo(map);
-                    button.classList.add('active');
-                    button.classList.remove('bg-gray-400');
-                }
-            }
-        }
     </script>
 </body>
 </html>
