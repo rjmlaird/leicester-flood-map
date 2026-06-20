@@ -1,6 +1,6 @@
 {
   "total_features_original": 21564,
-  "total_features_wgs84_clipped": 35,
+  "total_features_wgs84_clipped": 385,
   "geometry_type": [
     "MultiPolygon"
   ],
@@ -13,19 +13,21 @@
   },
   "wgs84_coordinate_system": "EPSG:4326",
   "wgs84_bounding_box": {
-    "min_x": -1.237792059408456,
-    "min_y": 52.58,
-    "max_x": -1.05,
-    "max_y": 52.72
+    "min_x": -1.6075412373,
+    "min_y": 52.3821710451,
+    "max_x": -0.4183648815,
+    "max_y": 52.9876790938
   },
   "clip_bbox_wgs84": {
-    "min_x": -1.25,
-    "min_y": 52.58,
-    "max_x": -1.05,
-    "max_y": 52.72
+    "min_x": -1.6075412373,
+    "min_y": 52.3821710451,
+    "max_x": -0.4183648815,
+    "max_y": 52.9876790938
   },
   "columns": [
     "layer",
     "geometry"
-  ]
+  ],
+  "input_dir": "/Volumes/DevProjects/data/leicester-flood-map/NDL-historic",
+  "output_dir": "docs"
 }

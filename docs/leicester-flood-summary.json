@@ -9,5 +9,21 @@
     "min_y": 52.58272416464982,
     "max_x": -1.0461926396364405,
     "max_y": 52.68728982632951
-  }
+  },
+  "clip_bbox_wgs84": {
+    "min_x": -1.6075412373,
+    "min_y": 52.3821710451,
+    "max_x": -0.4183648815,
+    "max_y": 52.9876790938
+  },
+  "columns": [
+    "watercourse_ref_no",
+    "watercourse_name",
+    "structure",
+    "type_of_structure",
+    "location",
+    "eastings",
+    "northings",
+    "geometry"
+  ]
 }

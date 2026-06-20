@@ -2,7 +2,6 @@
 // LEICESTER FLOOD RISK DATA - LEAFLET.JS CODE
 // ============================================================================
 
-// Load flood risk data
 let floodLayer;
 fetch('leicester-flood-data.geojson')
   .then(response => response.json())
@@ -15,24 +14,17 @@ fetch('leicester-flood-data.geojson')
         weight: 2
       },
       onEachFeature: function(feature, layer) {
-        // Add popup with feature information
         let popupContent = '<strong>Leicester Flood Risk</strong><br>';
-        
-        // Add all properties to popup
         for (let key in feature.properties) {
           if (key !== 'geometry') {
             popupContent += key + ': ' + feature.properties[key] + '<br>';
           }
         }
-        
         layer.bindPopup(popupContent);
       }
     });
-    
-    // Add layer to map
+
     floodLayer.addTo(map);
-    
-    // Fit map to data bounds
     map.fitBounds(floodLayer.getBounds());
   })
   .catch(error => {
@@ -55,6 +47,12 @@ const floodDataSummary = {
     "max_x": -1.0461926396364405,
     "max_y": 52.68728982632951
   },
+  "clip_bbox_wgs84": {
+    "min_x": -1.6075412373,
+    "min_y": 52.3821710451,
+    "max_x": -0.4183648815,
+    "max_y": 52.9876790938
+  },
   "columns": [
     "watercourse_ref_no",
     "watercourse_name",
@@ -66,5 +64,6 @@ const floodDataSummary = {
     "geometry"
   ]
 };
+
 console.log('Total flood features:', floodDataSummary.total_features);
 console.log('Bounding box:', floodDataSummary.bounding_box);

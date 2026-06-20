@@ -9,7 +9,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        #map { height: 600px; width: 100%; border-radius: 8px; }
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 8px;
+        }
 
         .layer-toggle {
             display: inline-block;
@@ -22,22 +26,45 @@
             transition: all 0.3s;
         }
 
-        .layer-toggle:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .layer-toggle.active { opacity: 1; box-shadow: 0 0 0 3px rgba(0,0,0,0.2); }
+        .layer-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .layer-toggle.active {
+            opacity: 1;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+        }
 
         .stat-card {
             background: white;
             border-radius: 8px;
             padding: 16px;
             margin: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .stat-value { font-size: 2em; font-weight: bold; color: #0066cc; }
-        .stat-label { font-size: 0.9em; color: #666; margin-top: 4px; }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0066cc;
+        }
 
-        .popup-content { font-size: 14px; max-width: 300px; }
-        .popup-content strong { color: #0066cc; font-size: 16px; }
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .popup-content {
+            font-size: 14px;
+            max-width: 300px;
+        }
+
+        .popup-content strong {
+            color: #0066cc;
+            font-size: 16px;
+        }
 
         .popup-section {
             margin: 8px 0;
@@ -46,8 +73,14 @@
             border-radius: 4px;
         }
 
-        .popup-label { font-weight: bold; color: #333; }
-        .popup-value { color: #666; }
+        .popup-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .popup-value {
+            color: #666;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -55,7 +88,7 @@
 <header class="bg-blue-600 text-white p-6">
     <div class="max-w-6xl mx-auto">
         <h1 class="text-3xl font-bold">🌊 Leicester Flood Risk Dashboard</h1>
-        <p class="mt-2 text-blue-100">Interactive map showing flood risk structures, historic flood outlines, and EA flood zones</p>
+        <p class="mt-2 text-blue-100">Interactive map showing flood risk structures, historic flood outlines, EA flood zones, and ward boundaries</p>
     </div>
 </header>
 
@@ -94,6 +127,9 @@
             <button id="toggle-ea-flood-cc" onclick="toggleLayer('ea-flood-cc')" class="layer-toggle active bg-purple-600 text-white">
                 EA Flood Zones (Climate Change)
             </button>
+            <button id="toggle-wards" onclick="toggleLayer('wards')" class="layer-toggle active bg-green-600 text-white">
+                County Wards
+            </button>
         </div>
     </div>
 
@@ -102,7 +138,7 @@
     <div class="bg-white p-6 rounded-lg mt-6 shadow">
         <h2 class="text-xl font-bold mb-4">📊 About This Dashboard</h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
                 <h3 class="font-semibold mb-2">🏗️ Leicester Flood Structures</h3>
                 <p class="text-gray-700">
@@ -125,40 +161,21 @@
                     Environment Agency Flood Zones for planning.
                     <br><strong>Base layer:</strong> Standard flood zones without climate-change allowance.
                     <br><strong>Climate change layer:</strong> Flood zones with climate-change allowance.
-                    <br><strong>Zone 2:</strong> Medium probability of flooding
-                    <br><strong>Zone 3:</strong> Higher probability of flooding
                 </p>
             </div>
-        </div>
 
-        <div class="mt-6 border-t pt-6">
-            <h3 class="font-semibold mb-2">Data Sources</h3>
-            <ul class="text-gray-700 space-y-1">
-                <li>• <strong>Leicester City:</strong> Flood Risk Register (990 structures)</li>
-                <li>• <strong>Environment Agency:</strong> Historic Flood Map outlines</li>
-                <li>• <strong>Environment Agency:</strong> Flood Zones for Planning</li>
-                <li>• <strong>Environment Agency:</strong> Flood Zones for Planning with Climate Change</li>
-            </ul>
-        </div>
-
-        <div class="mt-6 border-t pt-6">
-            <h3 class="font-semibold mb-2">How to Use</h3>
-            <ul class="text-gray-700 space-y-1">
-                <li>1. Click layer buttons to toggle data visibility</li>
-                <li>2. Click on map features to view detailed information</li>
-                <li>3. Use zoom controls to focus on specific areas</li>
-                <li>4. Scroll to pan across the map</li>
-            </ul>
+            <div>
+                <h3 class="font-semibold mb-2">🟩 County Wards</h3>
+                <p class="text-gray-700">
+                    Ward boundaries shown as a separate overlay layer for reference.
+                    This layer helps compare flood risk features against local administrative areas.
+                </p>
+            </div>
         </div>
     </div>
 
     <footer class="mt-8 text-center text-gray-600">
         <p>© 2026 Built with ❤️ for flood risk awareness in Leicester</p>
-        <p class="mt-2">
-            <a href="#" class="text-blue-600 hover:text-blue-800">Documentation</a> |
-            <a href="#" class="text-blue-600 hover:text-blue-800">GitHub</a> |
-            <a href="#" class="text-blue-600 hover:text-blue-800">Contact</a>
-        </p>
     </footer>
 </main>
 
@@ -166,11 +183,11 @@
 
 <script>
     const CACHE_BUST = '20260620';
-    const map = L.map('map').setView([52.6309, -1.1398], 12);
+    const map = L.map('map');
 
     L.tileLayer(`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?v=${CACHE_BUST}`, {
         attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
+        maxZoom: 13
     }).addTo(map);
 
     const addPopup = (feature, layer, title) => {
@@ -189,6 +206,7 @@
     let historicLayer = null;
     let eaLayer = null;
     let eaLayerCC = null;
+    let wardsLayer = null;
 
     function setButtonActive(layerName, active) {
         const button = document.getElementById(`toggle-${layerName}`);
@@ -207,7 +225,8 @@
             'leicester': leicesterLayer,
             'historic': historicLayer,
             'ea-flood': eaLayer,
-            'ea-flood-cc': eaLayerCC
+            'ea-flood-cc': eaLayerCC,
+            'wards': wardsLayer
         }[layerName];
 
         if (!layer) return;
@@ -218,8 +237,26 @@
         } else {
             layer.addTo(map);
             setButtonActive(layerName, true);
+            if (layerName === 'wards') {
+                try { layer.bringToFront(); } catch (e) {}
+            }
         }
     }
+
+    function fitToWardBounds() {
+        fetch(`ward-bounds.json?v=${CACHE_BUST}`)
+            .then(response => response.ok ? response.json() : Promise.reject('Ward bounds file missing'))
+            .then(data => {
+                const b = data.expanded_bounds || data.original_bounds || data;
+                const bounds = [[b.min_y, b.min_x], [b.max_y, b.max_x]];
+                map.fitBounds(bounds, { padding: [0, 0], maxZoom: 13 });
+            })
+            .catch(() => {
+                map.setView([52.68492506945, -1.0129530594], 10);
+            });
+    }
+
+    fitToWardBounds();
 
     fetch(`leicester-flood-data.geojson?v=${CACHE_BUST}`)
         .then(response => response.ok ? response.json() : Promise.reject('Leicester file missing'))
@@ -301,6 +338,28 @@
             }).addTo(map);
         })
         .catch(error => console.error('❌ Error loading EA flood zones CC:', error));
+
+    fetch(`county-wards.geojson?v=${CACHE_BUST}`)
+        .then(response => response.ok ? response.json() : Promise.reject('Wards file missing'))
+        .then(data => {
+            wardsLayer = L.geoJSON(data, {
+                style: function() {
+                    return {
+                        color: '#16a34a',
+                        fillColor: '#bbf7d0',
+                        fillOpacity: 0.50,
+                        weight: 2,
+                        dashArray: '6 4'
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    addPopup(feature, layer, 'County Ward');
+                }
+            }).addTo(map);
+
+            try { wardsLayer.bringToFront(); } catch (e) {}
+        })
+        .catch(error => console.error('❌ Error loading ward data:', error));
 </script>
 
 </body>

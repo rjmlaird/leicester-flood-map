@@ -1,0 +1,20 @@
+{
+  "input_file": "docs/county-wards.geojson",
+  "original_bounds": {
+    "min_x": -1.5975412373,
+    "min_y": 52.3921710451,
+    "max_x": -0.4283648815,
+    "max_y": 52.9776790938
+  },
+  "expanded_bounds": {
+    "min_x": -1.6075412373,
+    "min_y": 52.3821710451,
+    "max_x": -0.4183648815,
+    "max_y": 52.9876790938
+  },
+  "margin": {
+    "x": 0.01,
+    "y": 0.01
+  },
+  "crs": "EPSG:4326"
+}

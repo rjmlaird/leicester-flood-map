@@ -1,0 +1,41 @@
+{
+  "detailed_features": 14121,
+  "dissolved_features": 4,
+  "original_features": 14121,
+  "geometry_type_detailed": [
+    "MultiPolygon",
+    "Polygon"
+  ],
+  "geometry_type_dissolved": [
+    "MultiPolygon"
+  ],
+  "coordinate_system": "EPSG:4326",
+  "simplify_tolerance": 0.1,
+  "detailed_bounding_box": {
+    "min_x": -1.6126440678936,
+    "min_y": 52.374173554547106,
+    "max_x": -0.39665592449964304,
+    "max_y": 52.997506141191344
+  },
+  "dissolved_bounding_box": {
+    "min_x": -1.6126440678936,
+    "min_y": 52.374173554547106,
+    "max_x": -0.39665592449964304,
+    "max_y": 52.997506141191344
+  },
+  "columns_detailed": [
+    "flood_zone",
+    "name",
+    "geometry"
+  ],
+  "columns_dissolved": [
+    "flood_zone",
+    "geometry"
+  ],
+  "requested_bounds_wgs84": {
+    "min_x": -1.6075412373,
+    "min_y": 52.3821710451,
+    "max_x": -0.4183648815,
+    "max_y": 52.9876790938
+  }
+}
