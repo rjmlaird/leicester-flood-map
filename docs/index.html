@@ -88,7 +88,7 @@
     <header class="bg-blue-600 text-white p-6">
         <div class="max-w-6xl mx-auto">
             <h1 class="text-3xl font-bold">🌊 Leicester Flood Risk Dashboard</h1>
-            <p class="mt-2 text-blue-100">Interactive map showing flood risk structures, historic events, and EA flood zones</p>
+            <p class="mt-2 text-blue-100">Interactive map showing flood risk structures, historic flood outlines, and EA flood zones</p>
         </div>
     </header>
 
@@ -106,9 +106,9 @@
             </div>
 
             <div class="stat-card">
-                <div class="stat-value text-red-600">127</div>
-                <div class="stat-label">Historic Flood Events</div>
-                <div class="text-xs text-gray-500 mt-1">1946-2025</div>
+                <div class="stat-value text-red-600">Historic</div>
+                <div class="stat-label">Flood Outlines</div>
+                <div class="text-xs text-gray-500 mt-1">No year/time in source file</div>
             </div>
         </div>
 
@@ -119,7 +119,7 @@
                     Leicester Flood Structures
                 </button>
                 <button id="toggle-historic" onclick="toggleLayer('historic')" class="layer-toggle active bg-red-600 text-white">
-                    Historic Flood Events
+                    Historic Flood Outlines
                 </button>
                 <button id="toggle-ea-flood" onclick="toggleLayer('ea-flood')" class="layer-toggle active bg-indigo-600 text-white">
                     EA Flood Zones
@@ -145,9 +145,10 @@
                 </div>
 
                 <div>
-                    <h3 class="font-semibold mb-2">📅 Historic Flood Events</h3>
+                    <h3 class="font-semibold mb-2">📅 Historic Flood Outlines</h3>
                     <p class="text-gray-700">
-                        127 documented flood events from 1946-2025. The historic layer keeps the original GeoJSON shapes, so polygons and multipolygons remain visible on the map.
+                        Historic Flood Map polygons showing maximum recorded flood extent.
+                        The source file does not include event dates or years, so this layer shows outlines rather than dated events.
                     </p>
                 </div>
 
@@ -167,7 +168,7 @@
                 <h3 class="font-semibold mb-2">Data Sources</h3>
                 <ul class="text-gray-700 space-y-1">
                     <li>• <strong>Leicester City:</strong> Flood Risk Register (990 structures)</li>
-                    <li>• <strong>Environment Agency:</strong> Historic Flood Map (127 events)</li>
+                    <li>• <strong>Environment Agency:</strong> Historic Flood Map outlines</li>
                     <li>• <strong>Environment Agency:</strong> Flood Zones for Planning</li>
                     <li>• <strong>Environment Agency:</strong> Flood Zones for Planning with Climate Change</li>
                 </ul>
@@ -261,22 +262,16 @@
                         fillOpacity: 0.3,
                         weight: 2
                     },
-                    pointToLayer: function(feature, latlng) {
-                        return L.circleMarker(latlng, {
-                            radius: 8,
-                            fillColor: '#ff0000',
-                            color: '#8b0000',
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 0.8
-                        });
-                    },
                     onEachFeature: function(feature, layer) {
-                        addPopup(feature, layer, 'Historic Flood Event');
+                        addPopup(feature, layer, 'Historic Flood Outline');
                     }
                 }).addTo(map);
 
-                console.log('✅ Historic flood events loaded:', historicLayer.getLayers().length);
+                try {
+                    map.fitBounds(historicLayer.getBounds(), { padding: [20, 20] });
+                } catch (e) {}
+
+                console.log('✅ Historic flood outlines loaded:', historicLayer.getLayers().length);
             })
             .catch(error => {
                 console.error('❌ Error loading historic data:', error);

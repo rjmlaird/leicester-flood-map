@@ -1,74 +1,87 @@
 #!/usr/bin/env python3
 """
 Prepare historic flood data for Leaflet.js
+Writes:
+- historic-flood-data-original.geojson
+- historic-flood-data.geojson  (EPSG:4326 for Leaflet)
+- historic-flood-summary.json
 """
 
-import geopandas as gpd
-from pathlib import Path
 import json
+import zipfile
+from pathlib import Path
 
-# Configuration
-HISTORIC_DIR = Path(__file__).parent / "/Volumes/DevProjects/data/leicester-flood-map" / "NDL-historic"
+import geopandas as gpd
+
+HISTORIC_DIR = Path("/Volumes/DevProjects/data/leicester-flood-map/NDL-historic")
 DOCS_DIR = Path(__file__).parent / "docs"
 
-# Find the GeoJSON file
-geojson_files = list(HISTORIC_DIR.glob("*.geojson"))
-if not geojson_files:
-    print("❌ No GeoJSON file found. Extracting...")
-    import zipfile
-    zip_file = HISTORIC_DIR / "Historic_Flood_Map.geojson.zip"
-    if zip_file.exists():
-        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            zip_ref.extractall(HISTORIC_DIR)
-        geojson_files = list(HISTORIC_DIR.glob("*.geojson"))
+def load_historic_gdf():
+    geojson_files = list(HISTORIC_DIR.glob("*.geojson"))
 
-if not geojson_files:
-    print("❌ Still no GeoJSON found. Checking for other formats...")
-    # Try SHP
+    if not geojson_files:
+        print("❌ No GeoJSON found. Extracting zip...")
+        zip_file = HISTORIC_DIR / "Historic_Flood_Map.geojson.zip"
+        if zip_file.exists():
+            with zipfile.ZipFile(zip_file, "r") as zip_ref:
+                zip_ref.extractall(HISTORIC_DIR)
+            geojson_files = list(HISTORIC_DIR.glob("*.geojson"))
+
+    if geojson_files:
+        return gpd.read_file(geojson_files[0])
+
     shp_files = list(HISTORIC_DIR.glob("*.shp"))
     if shp_files:
-        gdf = gpd.read_file(shp_files[0])
-    else:
-        print("❌ No supported data format found")
-        exit(1)
-else:
-    # Read the GeoJSON
-    gdf = gpd.read_file(geojson_files[0])
+        return gpd.read_file(shp_files[0])
 
-print(f"✅ Loaded {len(gdf)} historic flood events")
+    raise FileNotFoundError("No supported historic flood data file found")
+
+gdf = load_historic_gdf()
+
+print(f"✅ Loaded {len(gdf)} historic flood outlines")
 print(f"📍 CRS: {gdf.crs}")
 print(f"📊 Columns: {gdf.columns.tolist()}")
 
-# Convert to WGS84 if needed
-if gdf.crs != 'EPSG:4326':
-    print(f"🔄 Converting to EPSG:4326...")
-    gdf = gdf.to_crs('EPSG:4326')
-
-# Save to docs folder
 DOCS_DIR.mkdir(parents=True, exist_ok=True)
-output_file = DOCS_DIR / "historic-flood-data.geojson"
 
-gdf.to_file(output_file, driver='GeoJSON')
+original_file = DOCS_DIR / "historic-flood-data-original.geojson"
+wgs84_file = DOCS_DIR / "historic-flood-data.geojson"
 
-print(f"✅ Saved to: {output_file}")
-print(f"📁 File size: {output_file.stat().st_size / 1024:.2f} KB")
+gdf.to_file(original_file, driver="GeoJSON")
+print(f"✅ Saved original CRS file: {original_file}")
+print(f"📁 Original file size: {original_file.stat().st_size / 1024:.2f} KB")
 
-# Create summary
+if gdf.crs is None:
+    print("⚠️ No CRS set, assuming EPSG:27700 before converting")
+    gdf = gdf.set_crs("EPSG:27700")
+
+gdf_wgs84 = gdf.to_crs("EPSG:4326")
+gdf_wgs84.to_file(wgs84_file, driver="GeoJSON")
+print(f"✅ Saved Leaflet-ready file: {wgs84_file}")
+print(f"📁 WGS84 file size: {wgs84_file.stat().st_size / 1024:.2f} KB")
+
 summary = {
-    'total_events': len(gdf),
-    'geometry_type': gdf.geometry.type.unique().tolist(),
-    'coordinate_system': str(gdf.crs),
-    'bounding_box': {
-        'min_x': float(gdf.total_bounds[0]),
-        'min_y': float(gdf.total_bounds[1]),
-        'max_x': float(gdf.total_bounds[2]),
-        'max_y': float(gdf.total_bounds[3])
+    "total_features": len(gdf),
+    "geometry_type": gdf.geometry.type.unique().tolist(),
+    "coordinate_system": str(gdf.crs),
+    "bounding_box": {
+        "min_x": float(gdf.total_bounds[0]),
+        "min_y": float(gdf.total_bounds[1]),
+        "max_x": float(gdf.total_bounds[2]),
+        "max_y": float(gdf.total_bounds[3]),
     },
-    'columns': gdf.columns.tolist()
+    "wgs84_coordinate_system": str(gdf_wgs84.crs),
+    "wgs84_bounding_box": {
+        "min_x": float(gdf_wgs84.total_bounds[0]),
+        "min_y": float(gdf_wgs84.total_bounds[1]),
+        "max_x": float(gdf_wgs84.total_bounds[2]),
+        "max_y": float(gdf_wgs84.total_bounds[3]),
+    },
+    "columns": gdf.columns.tolist(),
 }
 
 summary_file = DOCS_DIR / "historic-flood-summary.json"
-with open(summary_file, 'w') as f:
+with open(summary_file, "w") as f:
     json.dump(summary, f, indent=2)
 
 print(f"✅ Summary saved to: {summary_file}")

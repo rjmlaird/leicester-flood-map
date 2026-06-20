@@ -1,10 +1,17 @@
 {
-  "total_events": 21564,
+  "total_features": 21564,
   "geometry_type": [
     "MultiPolygon"
   ],
-  "coordinate_system": "EPSG:4326",
+  "coordinate_system": "EPSG:27700",
   "bounding_box": {
+    "min_x": 90093.8921999997,
+    "min_y": 10072.4323999994,
+    "max_x": 655506.188,
+    "max_y": 653501.996300001
+  },
+  "wgs84_coordinate_system": "EPSG:4326",
+  "wgs84_bounding_box": {
     "min_x": -6.318640643941382,
     "min_y": 49.91108510329921,
     "max_x": 1.7610453331696858,
