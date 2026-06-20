@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Leicester Flood Risk Dashboard</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css?v=20260620" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.min.js"></script>
 
     <style>
         #map {
@@ -197,12 +195,12 @@
         </footer>
     </main>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js?v=20260620"></script>
 
     <script>
         const map = L.map('map').setView([52.6309, -1.1398], 12);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?v=20260620', {
             attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 19
         }).addTo(map);
@@ -218,8 +216,6 @@
             c += `</div>`;
             layer.bindPopup(c);
         };
-
-        const isWgs84 = (gdf) => true;
 
         let leicesterLayer = null;
         let historicLayer = null;
@@ -248,7 +244,7 @@
             }
         }
 
-        fetch('leicester-flood-data.geojson')
+        fetch('leicester-flood-data.geojson?v=20260620')
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
@@ -283,7 +279,7 @@
 
         function addHistoricGeoJson(data) {
             historicLayer = L.geoJSON(data, {
-                style: function(feature) {
+                style: function() {
                     return {
                         color: '#dc2626',
                         fillColor: '#dc2626',
@@ -301,8 +297,33 @@
             } catch (e) {}
         }
 
+        function convertBngToWgs84(data) {
+            const proj4Def = 'EPSG:27700';
+            proj4.defs(proj4Def, '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs');
+            const projectCoords = (coords) => {
+                if (typeof coords[0] === 'number') {
+                    const p = proj4(proj4Def, 'EPSG:4326', coords);
+                    return [p[0], p[1]];
+                }
+                return coords.map(projectCoords);
+            };
+            return {
+                type: 'FeatureCollection',
+                features: (data.features || []).map(f => {
+                    if (!f.geometry) return f;
+                    return {
+                        ...f,
+                        geometry: {
+                            ...f.geometry,
+                            coordinates: projectCoords(f.geometry.coordinates)
+                        }
+                    };
+                })
+            };
+        }
+
         function loadHistoricWithFallback() {
-            fetch('historic-flood-data.geojson')
+            fetch('historic-flood-data.geojson?v=20260620')
                 .then(response => {
                     if (!response.ok) throw new Error('WGS84 historic file not found');
                     return response.json();
@@ -311,35 +332,13 @@
                     addHistoricGeoJson(data);
                 })
                 .catch(() => {
-                    fetch('historic-flood-data-original.geojson')
+                    fetch('historic-flood-data-original.geojson?v=20260620')
                         .then(response => {
                             if (!response.ok) throw new Error('Original historic file not found');
                             return response.json();
                         })
                         .then(data => {
-                            const converted = {
-                                type: 'FeatureCollection',
-                                features: (data.features || []).map(f => {
-                                    const geom = f.geometry;
-                                    if (!geom) return f;
-
-                                    const projectCoords = (coords) => {
-                                        if (typeof coords[0] === 'number') {
-                                            const p = proj4('EPSG:27700', 'EPSG:4326', coords);
-                                            return [p[0], p[1]];
-                                        }
-                                        return coords.map(projectCoords);
-                                    };
-
-                                    return {
-                                        ...f,
-                                        geometry: {
-                                            ...geom,
-                                            coordinates: projectCoords(geom.coordinates)
-                                        }
-                                    };
-                                })
-                            };
+                            const converted = convertBngToWgs84(data);
                             addHistoricGeoJson(converted);
                         })
                         .catch(error => {
@@ -350,7 +349,7 @@
 
         loadHistoricWithFallback();
 
-        fetch('ea-flood-zones.geojson')
+        fetch('ea-flood-zones.geojson?v=20260620')
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
@@ -380,7 +379,7 @@
                 console.error('❌ Error loading EA flood zones:', error);
             });
 
-        fetch('ea-flood-zones-cc.geojson')
+        fetch('ea-flood-zones-cc.geojson?v=20260620')
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
