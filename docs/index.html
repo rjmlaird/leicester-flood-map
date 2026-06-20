@@ -9,11 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        #map {
-            height: 600px;
-            width: 100%;
-            border-radius: 8px;
-        }
+        #map { height: 600px; width: 100%; border-radius: 8px; }
 
         .layer-toggle {
             display: inline-block;
@@ -26,15 +22,8 @@
             transition: all 0.3s;
         }
 
-        .layer-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .layer-toggle.active {
-            opacity: 1;
-            box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
-        }
+        .layer-toggle:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .layer-toggle.active { opacity: 1; box-shadow: 0 0 0 3px rgba(0,0,0,0.2); }
 
         .stat-card {
             background: white;
@@ -44,27 +33,11 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #0066cc;
-        }
+        .stat-value { font-size: 2em; font-weight: bold; color: #0066cc; }
+        .stat-label { font-size: 0.9em; color: #666; margin-top: 4px; }
 
-        .stat-label {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 4px;
-        }
-
-        .popup-content {
-            font-size: 14px;
-            max-width: 300px;
-        }
-
-        .popup-content strong {
-            color: #0066cc;
-            font-size: 16px;
-        }
+        .popup-content { font-size: 14px; max-width: 300px; }
+        .popup-content strong { color: #0066cc; font-size: 16px; }
 
         .popup-section {
             margin: 8px 0;
@@ -73,217 +46,218 @@
             border-radius: 4px;
         }
 
-        .popup-label {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .popup-value {
-            color: #666;
-        }
+        .popup-label { font-weight: bold; color: #333; }
+        .popup-value { color: #666; }
     </style>
 </head>
 <body class="bg-gray-100">
 
-    <header class="bg-blue-600 text-white p-6">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-3xl font-bold">🌊 Leicester Flood Risk Dashboard</h1>
-            <p class="mt-2 text-blue-100">Interactive map showing flood risk structures, historic flood outlines, and EA flood zones</p>
-        </div>
-    </header>
+<header class="bg-blue-600 text-white p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold">🌊 Leicester Flood Risk Dashboard</h1>
+        <p class="mt-2 text-blue-100">Interactive map showing flood risk structures, historic flood outlines, and EA flood zones</p>
+    </div>
+</header>
 
-    <main class="max-w-6xl mx-auto p-6">
+<main class="max-w-6xl mx-auto p-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="stat-card">
-                <div class="stat-value">990</div>
-                <div class="stat-label">Flood Defense Structures</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-value">45%</div>
-                <div class="stat-label">Properties at Flood Risk</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-value text-red-600">Historic</div>
-                <div class="stat-label">Flood Outlines</div>
-                <div class="text-xs text-gray-500 mt-1">No year/time in source file</div>
-            </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="stat-card">
+            <div class="stat-value">990</div>
+            <div class="stat-label">Flood Defense Structures</div>
         </div>
 
-        <div class="bg-white p-4 rounded-lg mb-6 shadow">
-            <h2 class="text-lg font-bold mb-3">🗺️ Toggle Data Layers</h2>
-            <div class="flex flex-wrap">
-                <button id="toggle-leicester" onclick="toggleLayer('leicester')" class="layer-toggle active bg-blue-600 text-white">
-                    Leicester Flood Structures
-                </button>
-                <button id="toggle-historic" onclick="toggleLayer('historic')" class="layer-toggle active bg-red-600 text-white">
-                    Historic Flood Outlines
-                </button>
-                <button id="toggle-ea-flood" onclick="toggleLayer('ea-flood')" class="layer-toggle active bg-indigo-600 text-white">
-                    EA Flood Zones
-                </button>
-                <button id="toggle-ea-flood-cc" onclick="toggleLayer('ea-flood-cc')" class="layer-toggle active bg-purple-600 text-white">
-                    EA Flood Zones (Climate Change)
-                </button>
-            </div>
+        <div class="stat-card">
+            <div class="stat-value">45%</div>
+            <div class="stat-label">Properties at Flood Risk</div>
         </div>
 
-        <div id="map"></div>
+        <div class="stat-card">
+            <div class="stat-value text-red-600">Historic</div>
+            <div class="stat-label">Flood Outlines</div>
+            <div class="text-xs text-gray-500 mt-1">No year/time in source file</div>
+        </div>
+    </div>
 
-        <div class="bg-white p-6 rounded-lg mt-6 shadow">
-            <h2 class="text-xl font-bold mb-4">📊 About This Dashboard</h2>
+    <div class="bg-white p-4 rounded-lg mb-6 shadow">
+        <h2 class="text-lg font-bold mb-3">🗺️ Toggle Data Layers</h2>
+        <div class="flex flex-wrap">
+            <button id="toggle-leicester" onclick="toggleLayer('leicester')" class="layer-toggle active bg-blue-600 text-white">
+                Leicester Flood Structures
+            </button>
+            <button id="toggle-historic" onclick="toggleLayer('historic')" class="layer-toggle active bg-red-600 text-white">
+                Historic Flood Outlines
+            </button>
+            <button id="toggle-ea-flood" onclick="toggleLayer('ea-flood')" class="layer-toggle active bg-indigo-600 text-white">
+                EA Flood Zones
+            </button>
+            <button id="toggle-ea-flood-cc" onclick="toggleLayer('ea-flood-cc')" class="layer-toggle active bg-purple-600 text-white">
+                EA Flood Zones (Climate Change)
+            </button>
+        </div>
+    </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <h3 class="font-semibold mb-2">🏗️ Leicester Flood Structures</h3>
-                    <p class="text-gray-700">
-                        990 flood defence structures and features from Leicester City Council.
-                        Shows walls, culverts, and other flood protection infrastructure.
-                    </p>
-                </div>
+    <div id="map"></div>
 
-                <div>
-                    <h3 class="font-semibold mb-2">📅 Historic Flood Outlines</h3>
-                    <p class="text-gray-700">
-                        Historic Flood Map polygons showing maximum recorded flood extent.
-                        The source file does not include event dates or years, so this layer shows outlines rather than dated events.
-                    </p>
-                </div>
+    <div class="bg-white p-6 rounded-lg mt-6 shadow">
+        <h2 class="text-xl font-bold mb-4">📊 About This Dashboard</h2>
 
-                <div>
-                    <h3 class="font-semibold mb-2">🌊 EA Flood Zones</h3>
-                    <p class="text-gray-700">
-                        Environment Agency Flood Zones for planning.
-                        <br><strong>Base layer:</strong> Standard flood zones without climate-change allowance.
-                        <br><strong>Climate change layer:</strong> Flood zones with climate-change allowance.
-                        <br><strong>Zone 2:</strong> Medium probability of flooding
-                        <br><strong>Zone 3:</strong> Higher probability of flooding
-                    </p>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <h3 class="font-semibold mb-2">🏗️ Leicester Flood Structures</h3>
+                <p class="text-gray-700">
+                    990 flood defence structures and features from Leicester City Council.
+                    Shows walls, culverts, and other flood protection infrastructure.
+                </p>
             </div>
 
-            <div class="mt-6 border-t pt-6">
-                <h3 class="font-semibold mb-2">Data Sources</h3>
-                <ul class="text-gray-700 space-y-1">
-                    <li>• <strong>Leicester City:</strong> Flood Risk Register (990 structures)</li>
-                    <li>• <strong>Environment Agency:</strong> Historic Flood Map outlines</li>
-                    <li>• <strong>Environment Agency:</strong> Flood Zones for Planning</li>
-                    <li>• <strong>Environment Agency:</strong> Flood Zones for Planning with Climate Change</li>
-                </ul>
+            <div>
+                <h3 class="font-semibold mb-2">📅 Historic Flood Outlines</h3>
+                <p class="text-gray-700">
+                    Historic Flood Map polygons showing maximum recorded flood extent.
+                    The source file does not include event dates or years, so this layer shows outlines rather than dated events.
+                </p>
             </div>
 
-            <div class="mt-6 border-t pt-6">
-                <h3 class="font-semibold mb-2">How to Use</h3>
-                <ul class="text-gray-700 space-y-1">
-                    <li>1. Click layer buttons to toggle data visibility</li>
-                    <li>2. Click on map features to view detailed information</li>
-                    <li>3. Use zoom controls to focus on specific areas</li>
-                    <li>4. Scroll to pan across the map</li>
-                </ul>
+            <div>
+                <h3 class="font-semibold mb-2">🌊 EA Flood Zones</h3>
+                <p class="text-gray-700">
+                    Environment Agency Flood Zones for planning.
+                    <br><strong>Base layer:</strong> Standard flood zones without climate-change allowance.
+                    <br><strong>Climate change layer:</strong> Flood zones with climate-change allowance.
+                    <br><strong>Zone 2:</strong> Medium probability of flooding
+                    <br><strong>Zone 3:</strong> Higher probability of flooding
+                </p>
             </div>
         </div>
 
-        <footer class="mt-8 text-center text-gray-600">
-            <p>© 2026 Built with ❤️ for flood risk awareness in Leicester</p>
-            <p class="mt-2">
-                <a href="#" class="text-blue-600 hover:text-blue-800">Documentation</a> |
-                <a href="#" class="text-blue-600 hover:text-blue-800">GitHub</a> |
-                <a href="#" class="text-blue-600 hover:text-blue-800">Contact</a>
-            </p>
-        </footer>
-    </main>
+        <div class="mt-6 border-t pt-6">
+            <h3 class="font-semibold mb-2">Data Sources</h3>
+            <ul class="text-gray-700 space-y-1">
+                <li>• <strong>Leicester City:</strong> Flood Risk Register (990 structures)</li>
+                <li>• <strong>Environment Agency:</strong> Historic Flood Map outlines</li>
+                <li>• <strong>Environment Agency:</strong> Flood Zones for Planning</li>
+                <li>• <strong>Environment Agency:</strong> Flood Zones for Planning with Climate Change</li>
+            </ul>
+        </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js?v=20260620"></script>
+        <div class="mt-6 border-t pt-6">
+            <h3 class="font-semibold mb-2">How to Use</h3>
+            <ul class="text-gray-700 space-y-1">
+                <li>1. Click layer buttons to toggle data visibility</li>
+                <li>2. Click on map features to view detailed information</li>
+                <li>3. Use zoom controls to focus on specific areas</li>
+                <li>4. Scroll to pan across the map</li>
+            </ul>
+        </div>
+    </div>
 
-    <script>
-        const map = L.map('map').setView([52.6309, -1.1398], 12);
+    <footer class="mt-8 text-center text-gray-600">
+        <p>© 2026 Built with ❤️ for flood risk awareness in Leicester</p>
+        <p class="mt-2">
+            <a href="#" class="text-blue-600 hover:text-blue-800">Documentation</a> |
+            <a href="#" class="text-blue-600 hover:text-blue-800">GitHub</a> |
+            <a href="#" class="text-blue-600 hover:text-blue-800">Contact</a>
+        </p>
+    </footer>
+</main>
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?v=20260620', {
-            attribution: '&copy; OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js?v=20260620"></script>
 
-        const addPopup = (feature, layer, title) => {
-            const props = feature.properties || {};
-            let c = `<div class="popup-content"><strong>${title}</strong>`;
-            Object.entries(props).forEach(([k, v]) => {
-                if (v !== null && v !== undefined && k.toLowerCase() !== 'geometry') {
-                    c += `<div class="popup-section"><span class="popup-label">${k}</span><br><span class="popup-value">${v}</span></div>`;
-                }
-            });
-            c += `</div>`;
-            layer.bindPopup(c);
-        };
+<script>
+    const CACHE_BUST = '20260620';
+    const map = L.map('map').setView([52.6309, -1.1398], 12);
 
-        let leicesterLayer = null;
-        let historicLayer = null;
-        let eaLayer = null;
-        let eaLayerCC = null;
+    L.tileLayer(`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?v=${CACHE_BUST}`, {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
 
-        function toggleLayer(layerName) {
-            const button = document.getElementById(`toggle-${layerName}`);
-            const layer = {
-                'leicester': leicesterLayer,
-                'historic': historicLayer,
-                'ea-flood': eaLayer,
-                'ea-flood-cc': eaLayerCC
-            }[layerName];
-
-            if (!layer) return;
-
-            if (map.hasLayer(layer)) {
-                map.removeLayer(layer);
-                button.classList.remove('active');
-                button.classList.add('bg-gray-400');
-            } else {
-                layer.addTo(map);
-                button.classList.add('active');
-                button.classList.remove('bg-gray-400');
+    const addPopup = (feature, layer, title) => {
+        const props = feature.properties || {};
+        let c = `<div class="popup-content"><strong>${title}</strong>`;
+        Object.entries(props).forEach(([k, v]) => {
+            if (v !== null && v !== undefined && k.toLowerCase() !== 'geometry') {
+                c += `<div class="popup-section"><span class="popup-label">${k}</span><br><span class="popup-value">${v}</span></div>`;
             }
+        });
+        c += `</div>`;
+        layer.bindPopup(c);
+    };
+
+    let leicesterLayer = null;
+    let historicLayer = null;
+    let eaLayer = null;
+    let eaLayerCC = null;
+
+    function setButtonActive(layerName, active) {
+        const button = document.getElementById(`toggle-${layerName}`);
+        if (!button) return;
+        if (active) {
+            button.classList.add('active');
+            button.classList.remove('bg-gray-400');
+        } else {
+            button.classList.remove('active');
+            button.classList.add('bg-gray-400');
         }
+    }
 
-        fetch('leicester-flood-data.geojson?v=20260620')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                leicesterLayer = L.geoJSON(data, {
-                    pointToLayer: function(feature, latlng) {
-                        return L.circleMarker(latlng, {
-                            radius: 5,
-                            color: '#0066cc',
-                            fillColor: '#0066cc',
-                            fillOpacity: 0.7,
-                            weight: 2
-                        });
-                    },
-                    style: function() {
-                        return {
-                            color: '#0066cc',
-                            fillColor: '#0066cc',
-                            fillOpacity: 0.7,
-                            weight: 2
-                        };
-                    },
-                    onEachFeature: function(feature, layer) {
-                        addPopup(feature, layer, 'Leicester Flood Structure');
-                    }
-                }).addTo(map);
-            })
-            .catch(error => {
-                console.error('❌ Error loading Leicester data:', error);
-            });
+    function toggleLayer(layerName) {
+        const layer = {
+            'leicester': leicesterLayer,
+            'historic': historicLayer,
+            'ea-flood': eaLayer,
+            'ea-flood-cc': eaLayerCC
+        }[layerName];
 
-        function addHistoricGeoJson(data) {
+        if (!layer) return;
+
+        if (map.hasLayer(layer)) {
+            map.removeLayer(layer);
+            setButtonActive(layerName, false);
+        } else {
+            layer.addTo(map);
+            setButtonActive(layerName, true);
+        }
+    }
+
+    fetch(`leicester-flood-data.geojson?v=${CACHE_BUST}`)
+        .then(response => response.ok ? response.json() : Promise.reject('Leicester file missing'))
+        .then(data => {
+            leicesterLayer = L.geoJSON(data, {
+                pointToLayer: function(feature, latlng) {
+                    return L.circleMarker(latlng, {
+                        radius: 5,
+                        color: '#2563eb',
+                        fillColor: '#60a5fa',
+                        fillOpacity: 0.75,
+                        weight: 2
+                    });
+                },
+                style: function() {
+                    return {
+                        color: '#2563eb',
+                        fillColor: '#60a5fa',
+                        fillOpacity: 0.75,
+                        weight: 2
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    addPopup(feature, layer, 'Leicester Flood Structure');
+                }
+            }).addTo(map);
+        })
+        .catch(error => console.error('❌ Error loading Leicester data:', error));
+
+    fetch(`historic-flood-data.geojson?v=${CACHE_BUST}`)
+        .then(response => response.ok ? response.json() : Promise.reject('Historic file missing'))
+        .then(data => {
             historicLayer = L.geoJSON(data, {
                 style: function() {
                     return {
                         color: '#dc2626',
-                        fillColor: '#dc2626',
-                        fillOpacity: 0.25,
+                        fillColor: '#f87171',
+                        fillOpacity: 0.35,
                         weight: 2
                     };
                 },
@@ -292,123 +266,42 @@
                 }
             }).addTo(map);
 
-            try {
-                map.fitBounds(historicLayer.getBounds(), { padding: [20, 20] });
-            } catch (e) {}
-        }
+            try { map.fitBounds(historicLayer.getBounds(), { padding: [20, 20] }); } catch (e) {}
+        })
+        .catch(error => console.error('❌ Error loading historic data:', error));
 
-        function convertBngToWgs84(data) {
-            const proj4Def = 'EPSG:27700';
-            proj4.defs(proj4Def, '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs');
-            const projectCoords = (coords) => {
-                if (typeof coords[0] === 'number') {
-                    const p = proj4(proj4Def, 'EPSG:4326', coords);
-                    return [p[0], p[1]];
-                }
-                return coords.map(projectCoords);
-            };
-            return {
-                type: 'FeatureCollection',
-                features: (data.features || []).map(f => {
-                    if (!f.geometry) return f;
+    fetch(`ea-flood-zones.geojson?v=${CACHE_BUST}`)
+        .then(response => response.ok ? response.json() : Promise.reject('EA zones file missing'))
+        .then(data => {
+            eaLayer = L.geoJSON(data, {
+                style: function() {
                     return {
-                        ...f,
-                        geometry: {
-                            ...f.geometry,
-                            coordinates: projectCoords(f.geometry.coordinates)
-                        }
+                        color: '#4f46e5',
+                        fillColor: '#818cf8',
+                        fillOpacity: 0.45,
+                        weight: 2
                     };
-                })
-            };
-        }
+                }
+            }).addTo(map);
+        })
+        .catch(error => console.error('❌ Error loading EA flood zones:', error));
 
-        function loadHistoricWithFallback() {
-            fetch('historic-flood-data.geojson?v=20260620')
-                .then(response => {
-                    if (!response.ok) throw new Error('WGS84 historic file not found');
-                    return response.json();
-                })
-                .then(data => {
-                    addHistoricGeoJson(data);
-                })
-                .catch(() => {
-                    fetch('historic-flood-data-original.geojson?v=20260620')
-                        .then(response => {
-                            if (!response.ok) throw new Error('Original historic file not found');
-                            return response.json();
-                        })
-                        .then(data => {
-                            const converted = convertBngToWgs84(data);
-                            addHistoricGeoJson(converted);
-                        })
-                        .catch(error => {
-                            console.error('❌ Error loading historic data:', error);
-                        });
-                });
-        }
+    fetch(`ea-flood-zones-cc.geojson?v=${CACHE_BUST}`)
+        .then(response => response.ok ? response.json() : Promise.reject('EA CC file missing'))
+        .then(data => {
+            eaLayerCC = L.geoJSON(data, {
+                style: function() {
+                    return {
+                        color: '#9333ea',
+                        fillColor: '#c084fc',
+                        fillOpacity: 0.35,
+                        weight: 2
+                    };
+                }
+            }).addTo(map);
+        })
+        .catch(error => console.error('❌ Error loading EA flood zones CC:', error));
+</script>
 
-        loadHistoricWithFallback();
-
-        fetch('ea-flood-zones.geojson?v=20260620')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                eaLayer = L.geoJSON(data, {
-                    style: function(feature) {
-                        const p = feature.properties || {};
-                        const z = String(p.flood_zone || p.Flood_Zone || p.zone || p.Zone || '');
-
-                        if (z === '2') return { color: '#1d4ed8', fillColor: '#60a5fa', fillOpacity: 0.45, weight: 2 };
-                        if (z === '3') return { color: '#1e3a8a', fillColor: '#2563eb', fillOpacity: 0.55, weight: 2 };
-                        return { color: '#999999', fillColor: '#cccccc', fillOpacity: 0.35, weight: 1 };
-                    },
-                    onEachFeature: function(feature, layer) {
-                        const p = feature.properties || {};
-                        const z = String(p.flood_zone || p.Flood_Zone || p.zone || p.Zone || 'Unknown');
-                        let popupContent = '<div class="popup-content">';
-                        popupContent += '<strong>🌊 EA Flood Zone</strong><br><hr>';
-                        popupContent += `<div class="popup-section"><span class="popup-label">Flood Zone:</span><br><span class="popup-value" style="font-weight:bold;color:#1d4ed8;">${z}</span></div>`;
-                        popupContent += '</div>';
-                        layer.bindPopup(popupContent);
-                    }
-                }).addTo(map);
-            })
-            .catch(error => {
-                console.error('❌ Error loading EA flood zones:', error);
-            });
-
-        fetch('ea-flood-zones-cc.geojson?v=20260620')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                eaLayerCC = L.geoJSON(data, {
-                    style: function(feature) {
-                        const p = feature.properties || {};
-                        const z = String(p.flood_zone || p.Flood_Zone || p.zone || p.Zone || '');
-
-                        if (z === '2') return { color: '#7c3aed', fillColor: '#c4b5fd', fillOpacity: 0.35, weight: 2 };
-                        if (z === '3') return { color: '#5b21b6', fillColor: '#8b5cf6', fillOpacity: 0.45, weight: 2 };
-                        if (z === '3a') return { color: '#b91c1c', fillColor: '#f87171', fillOpacity: 0.5, weight: 2 };
-                        return { color: '#999999', fillColor: '#cccccc', fillOpacity: 0.35, weight: 1 };
-                    },
-                    onEachFeature: function(feature, layer) {
-                        const p = feature.properties || {};
-                        const z = String(p.flood_zone || p.Flood_Zone || p.zone || p.Zone || 'Unknown');
-                        let popupContent = '<div class="popup-content">';
-                        popupContent += '<strong>🌊 EA Flood Zone (Climate Change)</strong><br><hr>';
-                        popupContent += `<div class="popup-section"><span class="popup-label">Flood Zone:</span><br><span class="popup-value" style="font-weight:bold;color:#7c3aed;">${z}</span></div>`;
-                        popupContent += '</div>';
-                        layer.bindPopup(popupContent);
-                    }
-                }).addTo(map);
-            })
-            .catch(error => {
-                console.error('❌ Error loading EA flood zones CC:', error);
-            });
-    </script>
 </body>
 </html>
